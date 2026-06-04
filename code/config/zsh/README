@@ -1,2 +1,0 @@
-The zshenv file sets ZDOTDIR to a particular directory, and then dot files are
-read from there.
