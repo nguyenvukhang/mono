@@ -1,6 +1,7 @@
 const Self = @This();
 
 const std = @import("std");
+const builtin = @import("builtin");
 const mem = std.mem;
 const linux = std.os.linux;
 const posix = std.posix;
@@ -20,11 +21,21 @@ is_atty: bool,
 /// Number of rows in the current TTY, if it exists.
 win_rows: ?u16 = null,
 
-fn getBoundedFlagFromCli() bool {
-    for (std.os.argv) |argv| {
-        if (std.mem.eql(u8, std.mem.span(argv), "--bound")) {
-            return true;
-        }
+fn getBoundedFlagFromCli(allocator: mem.Allocator) !bool {
+    switch (comptime builtin.target.os.tag) {
+        .windows => {
+            const win_args = try std.process.argsAlloc(allocator);
+            for (win_args[1..]) |argv| {
+                if (std.mem.eql(u8, argv, "--bound")) {
+                    return true;
+                }
+            }
+        },
+        else => for (std.os.argv[1..]) |argv| {
+            if (std.mem.eql(u8, std.mem.span(argv), "--bound")) {
+                return true;
+            }
+        },
     }
     return false;
 }
@@ -35,10 +46,10 @@ fn getWinRows() ?u16 {
     return if (res == -1) null else w.row;
 }
 
-pub fn init() Self {
+pub fn init(allocator: mem.Allocator) !Self {
     const is_atty = std.posix.isatty(std.fs.File.stdout().handle);
     return .{
-        .is_bounded = getBoundedFlagFromCli(),
+        .is_bounded = try getBoundedFlagFromCli(allocator),
         .is_atty = is_atty,
         .win_rows = if (is_atty) getWinRows() else null,
     };
@@ -64,7 +75,7 @@ pub fn maxOutputRows(app: *const Self) ?u16 {
 pub fn less_args(
     self: *const Self,
     allocator: mem.Allocator,
-) error{ OutOfMemory, NoSpaceLeft }![][]const u8 {
+) error{ OutOfMemory, NoSpaceLeft, Overflow }![][]const u8 {
     var args: std.ArrayList([]const u8) = try .initCapacity(allocator, 3);
     args.appendSliceAssumeCapacity(&.{ "less", "-RFG" });
 
@@ -90,7 +101,7 @@ pub fn less_args(
 pub fn git_log_args(
     self: *const Self,
     allocator: mem.Allocator,
-) error{ OutOfMemory, NoSpaceLeft }![][]const u8 {
+) error{ OutOfMemory, NoSpaceLeft, Overflow }![][]const u8 {
     var args: std.ArrayList([]const u8) = try .initCapacity(allocator, 16);
     args.appendSliceAssumeCapacity(&.{
         // git options.
@@ -109,12 +120,23 @@ pub fn git_log_args(
         try args.append(allocator, num_str);
     }
 
-    for (std.os.argv[1..]) |argv_z| {
-        const argv: []const u8 = mem.span(argv_z);
-        if (!mem.eql(u8, argv, "--bound")) {
-            try args.append(allocator, argv);
-        }
+    switch (comptime builtin.target.os.tag) {
+        .windows => {
+            const win_args = try std.process.argsAlloc(allocator);
+            for (win_args[1..]) |argv| {
+                if (!mem.eql(u8, argv, "--bound")) {
+                    try args.append(allocator, argv);
+                }
+            }
+        },
+        else => for (std.os.argv[1..]) |argv| {
+            const argv_z = std.mem.span(argv);
+            if (!mem.eql(u8, argv_z, "--bound")) {
+                try args.append(allocator, argv_z);
+            }
+        },
     }
+
     try args.append(allocator, "--graph");
     try args.append(allocator, "--format=" //
         ++ "%C(yellow)%h" // commit SHA

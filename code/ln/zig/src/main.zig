@@ -13,7 +13,7 @@ pub const std_options: std.Options = .{
 
 pub fn main_inner() !u8 {
     std.log.info("Start execution", .{});
-    const app: App = App.init();
+    const app: App = try App.init(allocator);
 
     const argv_gl = app.git_log_args(allocator) catch {
         std.debug.print("Failed to get git log args.\n", .{});
