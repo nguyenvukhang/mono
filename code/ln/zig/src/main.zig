@@ -1,0 +1,143 @@
+const std = @import("std");
+const App = @import("app.zig");
+const mem = std.mem;
+
+var fixed_buffer: [0x1000]u8 = undefined;
+var fba: std.heap.FixedBufferAllocator = .init(&fixed_buffer);
+const allocator = fba.allocator();
+
+pub const std_options: std.Options = .{
+    .log_level = .err,
+    .logFn = @import("logger.zig").customLog,
+};
+
+pub fn main_inner() !u8 {
+    std.log.info("Start execution", .{});
+    const app: App = App.init();
+
+    const argv_gl = app.git_log_args(allocator) catch {
+        std.debug.print("Failed to get git log args.\n", .{});
+        return 1;
+    };
+    if (comptime std.options.log_level == .debug) {
+        for (0..argv_gl.len) |i| {
+            std.log.debug("[{d}] = {s}\x1b[m", .{ i, argv_gl[i] });
+        }
+    }
+
+    // If we're not even in a TTY, then don't bother with a pager.
+    if (!app.is_atty) {
+        var gl = std.process.Child.init(argv_gl, allocator);
+        gl.spawn() catch {
+            std.debug.print("Failed to spawn git log.\n", .{});
+            return 1;
+        };
+        const term = gl.wait() catch {
+            std.debug.print("Error while waiting for git log.\n", .{});
+            return 1;
+        };
+        return term.Exited;
+    }
+
+    // Spawn `less` first to see if it exists.
+    const argv_ls = app.less_args(allocator) catch {
+        std.debug.print("Failed to get less args.\n", .{});
+        return 1;
+    };
+    var proc_ls = std.process.Child.init(argv_ls, allocator);
+    proc_ls.stdin_behavior = .Pipe;
+    proc_ls.spawn() catch {
+        std.debug.print("Failed to spawn less.\n", .{});
+        return 1;
+    };
+
+    std.log.info("Just spawned less.", .{});
+
+    // Prepare the `git log` child process, but don't spawn yet. Whether or not
+    // we pipe it depends on if `less` went well.
+    var proc_gl = std.process.Child.init(argv_gl, allocator);
+
+    // If `less` is not installed, then just run a full bypass to git log.
+    proc_ls.waitForSpawn() catch |err| switch (err) {
+        error.FileNotFound => {
+            std.log.warn("`less` is not installed.\n", .{});
+            proc_gl.spawn() catch {
+                std.debug.print("Failed to spawn git log.\n", .{});
+                return 1;
+            };
+            const term = proc_gl.wait() catch {
+                std.debug.print("Error while waiting for git log.\n", .{});
+                return 1;
+            };
+            return term.Exited;
+        },
+        else => return err,
+    };
+    std.log.info("Less spawned okay.", .{});
+
+    proc_gl.stdout_behavior = .Pipe;
+    proc_gl.spawn() catch {
+        std.debug.print("Failed to spawn git log.\n", .{});
+        return 1;
+    };
+
+    // This should be safe because we already set the stdin_behavior above.
+    const proc_ls_stdin = proc_ls.stdin orelse unreachable;
+    proc_ls.stdin = null; // Move the value out, a la Rust's Option::take.
+
+    const read_buf = try allocator.alloc(u8, 0x400);
+    const write_buf = try allocator.alloc(u8, 0x400);
+    var f_reader = proc_gl.stdout.?.reader(read_buf);
+    var reader = &f_reader.interface;
+    var output = proc_ls_stdin.writer(write_buf);
+    std.log.info("Starting log loop.", .{});
+    loop: while (true) {
+        var line = reader.takeDelimiterInclusive('\n') catch |e| switch (e) {
+            error.EndOfStream => break :loop,
+            else => return e,
+        };
+        std.log.info("line: {s}", .{line[0..mem.indexOfScalar(u8, line, '\n').?]});
+        // Look for the separator character. If none is found, then skip parsing
+        // and just print the line to stdout.
+        const n = mem.lastIndexOfScalar(u8, line, '\x02') orelse {
+            _ = output.interface.write(line) catch {
+                break;
+            };
+            continue;
+        };
+        // Unreachable because we expect `git` to at least have one space
+        // character after the separator, since we use %ar, which prints
+        // something like "3 days ago".
+        const m = (mem.indexOfScalar(u8, line[n..], ' ') orelse unreachable) + n;
+        line[m] = if (line[m + 1] == 'm' and line[m + 2] == 'o') 'M' else line[m + 1];
+        @memmove(line[n..m], line[n + 1 .. m + 1]);
+        const j = (mem.indexOfScalar(
+            u8,
+            line[m..],
+            if (app.is_atty) '\x1b' else ')',
+        ) orelse unreachable) + m;
+        @memmove(line[m .. m + line.len - j], line[j..]);
+        line = line[0 .. m + line.len - j];
+        _ = output.interface.write(line) catch {
+            break;
+        };
+    }
+    output.interface.flush() catch {
+        // All's good. Maybe less just closed early.
+        return 0;
+    };
+    std.log.info("Exit log loop", .{});
+    proc_ls_stdin.close();
+    _ = try proc_ls.wait();
+    std.log.info("Less process closed", .{});
+    const term = try proc_gl.wait();
+    return term.Exited;
+}
+
+pub fn main() !void {
+    _ = try main_inner();
+}
+
+test {
+    _ = @import("logger.zig");
+}

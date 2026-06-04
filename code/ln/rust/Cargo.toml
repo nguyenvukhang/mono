@@ -1,0 +1,17 @@
+[package]
+name = "ln"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+path = "src/main.rs"
+name = "git-ln2"
+
+[profile.release]
+opt-level = "z"
+strip = "symbols"
+codegen-units = 1
+lto = "fat"
+
+[dependencies]
+crossterm = "0.28.1"

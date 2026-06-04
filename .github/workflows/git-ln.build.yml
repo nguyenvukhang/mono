@@ -1,0 +1,32 @@
+name: git-ln build
+
+on:
+  push:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [
+            # [latest stuff]
+            ubuntu-latest,
+            macos-latest,
+            # [fixed versions]
+            ubuntu-24.04,
+            ubuntu-22.04,
+            macos-15,
+            macos-14,
+            # [unsupported]
+            # windows-latest,
+            # windows-2025,
+            # windows-2022,
+          ]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: code/ln/c
+    steps:
+      - uses: actions/checkout@v5
+      - run: make configure
+      - run: make install
