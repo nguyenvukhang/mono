@@ -1,0 +1,11 @@
+new_tab ℓ·server
+cd ~/repos/Algebra.tex
+launch zsh
+
+new_tab ℓ·editor
+cd ~/repos/Algebra.tex
+launch zsh
+
+new_tab editor
+cd ~/repos/Algebra
+launch zsh

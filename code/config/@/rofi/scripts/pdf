@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# For documentation, see https://davatorium.github.io/rofi/1.7.3/rofi-script.5/
+# In particular, they recommend to use `coproc ( myApp > /dev/null  2>&1 )` to
+# open external programs from Rofi.
+
+Z_INDEX=
+Z_INDEX+=' /home/khang/uni'
+Z_INDEX+=' /home/khang/repos/pdfs'
+Z_INDEX+=' /home/khang/repos/tex'
+Z_INDEX+=' /home/khang/repos/hire'
+Z_INDEX+=' /home/khang/repos/finance'
+Z_INDEX+=' /home/khang/Downloads'
+Z_INDEX+=' /home/khang/repos/Algebra.tex'
+
+PATH=$HOME/.cargo/bin:$PATH
+export PATH
+
+if [ $# -eq 0 ]; then
+  zathura-pdf-index $Z_INDEX
+else
+  coproc (zathura "$ROFI_INFO" >/dev/null 2>&1)
+fi

@@ -1,0 +1,7 @@
+new_tab editor
+cd ~/repos/kopiwm
+launch zsh
+
+new_tab dwm
+cd ~/repos/dwm
+launch zsh
