@@ -4,7 +4,7 @@ on:
   push:
 
 jobs:
-  build:
+  build-c:
     strategy:
       matrix:
         os: [
@@ -30,3 +30,38 @@ jobs:
       - uses: actions/checkout@v5
       - run: make configure
       - run: make install
+  build-zig-rust:
+    strategy:
+      matrix:
+        os: [
+            # [latest stuff]
+            ubuntu-latest,
+            macos-latest,
+            # [fixed versions]
+            ubuntu-24.04,
+            ubuntu-22.04,
+            macos-15,
+            macos-14,
+            # [unsupported]
+            windows-latest,
+            windows-2025,
+            windows-2022,
+          ]
+        lang: [zig, rust]
+        include:
+          - lang: zig
+            tool: zig
+          - lang: rust
+            tool: cargo
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: code/ln/${{ matrix.lang }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: cp build.zig.zon ${{ github.workspace }}
+        if: ${{ matrix.lang == 'zig' }}
+      - uses: mlugg/setup-zig@v2
+        if: ${{ matrix.lang == 'zig' }}
+      - run: ${{ matrix.tool }} build

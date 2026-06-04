@@ -7,7 +7,7 @@
 /// The main allocated stack memory for this program.
 static char BUFFER[GIT_LN_BUFSIZ];
 
-enum git_ln_flag : uint8_t {
+enum git_ln_flag {
     GIT_LN_IS_ATTY = 0b001,
     GIT_LN_IS_BOUNDED = 0b010,
 };

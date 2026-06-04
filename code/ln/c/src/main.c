@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -67,7 +68,8 @@ int exec_git_log(const int argc, const char *argv[], int max_rows) {
         log_info("Restricted git log to %s", BUFFER);
     }
     // Copy the values of `argv` into `args`.
-    p = mempcpy(p, &argv[1], sizeof(char *) * (argc - 1));
+    memcpy(p, &argv[1], sizeof(char *) * (argc - 1));
+    p += argc - 1;
     *p++ = "--graph";
     *p++ = "--format="
            "%C(yellow)%h" // commit SHA
@@ -123,7 +125,8 @@ void exec_less() {
         }
         char *p = BUFFER;
 #define cmd "--cmd=/HEAD ->\n"
-        p = mempcpy(p, cmd, sizeof(cmd) - 1);
+        p = memcpy(p, cmd, sizeof(cmd) - 1);
+        p += sizeof(cmd) - 1;
         p += snprintf(p, 4, "%d", up);
         *p++ = 'k';
         *p++ = '\0';
