@@ -11,7 +11,7 @@ pub fn initialize_home_dir() {
 /// This is safe because it is initialized once ever, at the start.
 #[allow(static_mut_refs)]
 pub fn home_dir() -> &'static Path {
-    unsafe { HOME_DIR.as_ref().unwrap().as_path() }
+    unsafe { HOME_DIR.as_ref().unwrap() }.as_path()
 }
 
 /// Obtains the filesize using the `du` program.

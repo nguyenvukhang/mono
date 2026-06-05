@@ -1,4 +1,4 @@
-current: run
+current: build
 
 build:
 	cargo build
