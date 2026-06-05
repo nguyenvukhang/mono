@@ -35,6 +35,9 @@ pub fn install_apt_packages() {
     // Runtime requirements for gpg with a hardware key.
     apt.args(["gnupg", "gnupg-agent", "scdaemon", "pcscd"]);
 
+    // Runtime requirements yubikey manager CLI tool.
+    apt.args(["libpcsclite-dev"]);
+
     // The standard few.
     apt.args(["git", "curl", "wget", "rsync", "man"])
         // for systemctl commands.
