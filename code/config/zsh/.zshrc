@@ -59,6 +59,7 @@ fi
 #  Setting $PATH
 prepend_to_path_if_exists "/usr/lib/wsl/lib"
 prepend_to_path_if_exists "/usr/local/cuda/bin"
+prepend_to_path_if_exists "/usr/local/go/bin"
 if [ ! -z $HOMEBREW_PREFIX ]; then
   prepend_to_path_if_exists "$HOMEBREW_PREFIX/opt/ruby/bin"
   prepend_to_path_if_exists "$HOMEBREW_PREFIX/opt/swift/bin"
@@ -68,7 +69,6 @@ if [ ! -z $HOME ]; then
   prepend_to_path_if_exists "$HOME/.elan/bin"
   prepend_to_path_if_exists "$HOME/.jenv/bin"
   prepend_to_path_if_exists "$HOME/.local/clangd_22.1.0/bin"
-  prepend_to_path_if_exists "$HOME/.local/go/bin"
   prepend_to_path_if_exists "$HOME/.local/jdtls/bin"
   prepend_to_path_if_exists "$HOME/.local/luals/bin"
   prepend_to_path_if_exists "$HOME/.local/share/gem/ruby/3.3.0/bin"
