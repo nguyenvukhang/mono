@@ -71,6 +71,7 @@ if [ ! -z $HOME ]; then
   prepend_to_path_if_exists "$HOME/.local/go/bin"
   prepend_to_path_if_exists "$HOME/.local/jdtls/bin"
   prepend_to_path_if_exists "$HOME/.local/luals/bin"
+  prepend_to_path_if_exists "$HOME/.local/share/gem/ruby/3.3.0/bin"
   prepend_to_path_if_exists "$HOME/.local/telegram"
   prepend_to_path_if_exists "$HOME/.local/texlive/texdir/bin/x86_64-linux"
   prepend_to_path_if_exists "$HOME/.local/zig"
