@@ -1,0 +1,3 @@
+While writing/testing code I like to be able to run things quickly (i.e. with as
+little keystrokes as possible). Honestly, this could (and was) done with a `sh`
+script, but I decided to over-engineer this just a tad, for fun.
