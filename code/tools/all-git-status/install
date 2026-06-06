@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# This simply copies the script into INSTALL_LOCATION
+# Just make sure that INSTALL_LOCATION is part of your PATH variable
+
+TARGET_AGS_DIR=/usr/local/bin
+AGSFILE=$TARGET_AGS_DIR/ags
+TARGET_MAN_DIR=/usr/local/share/man/man1
+MANFILE=$TARGET_MAN_DIR/ags.1.gz
+
+trap "rm -f ags.1.gz" EXIT
+
+uninstall=false
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -d|--delete)
+      uninstall=true; shift;;
+    *|-*|--*)
+      echo "Unknown option $1"; exit 1;;
+  esac
+done
+
+if [[ $uninstall == false ]]; then
+  # install ags
+  sudo mkdir -p $TARGET_AGS_DIR 2> /dev/null
+  sudo cp ags $AGSFILE
+  # install man page
+  gzip --keep ags.1
+  sudo mkdir -p $TARGET_MAN_DIR 2> /dev/null
+  sudo mv ags.1.gz /usr/local/share/man/man1
+  if [[ -f $AGSFILE && -f $MANFILE ]]; then
+    printf "Installation successful.\n"
+    exit 0
+  else
+    printf "Installation incomplete.\n"
+    printf "Please re-run uninstallation script.\n"
+  fi
+else
+  # uninstall ags
+  [ -f $AGSFILE ] && sudo rm $AGSFILE
+  # uninstall man page
+  [ -f $MANFILE ] && sudo rm $MANFILE
+  if [[ ! -f $AGSFILE && ! -f $MANFILE ]]; then
+    printf "Uninstallation successful.\n"
+    exit 0
+  else
+    printf "Some residual files remain.\n"
+    printf "Please re-run uninstallation script.\n"
+  fi
+fi
