@@ -125,3 +125,18 @@ jobs:
           git add --all
           git commit -m 'First try'
           git push --force --set-upstream origin main
+
+  heliumd:
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - macos-15
+          - macos-14
+      fail-fast: false
+    timeout-minutes: 5
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - run: make build
+        working-directory: code/tools/wacom-macos-precision-mode-daemon
