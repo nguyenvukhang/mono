@@ -1,4 +1,4 @@
-name: simple tests
+name: simple CI
 
 on:
   push:
@@ -100,3 +100,28 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - run: cargo build
+
+  mirror-debian-setup-instructions:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          path: x
+      - uses: actions/checkout@v6
+        with:
+          path: y
+          repository: nguyenvukhang/debian13
+          token: ${{ secrets.GH_DEBIAN13_TOKEN }}
+      - run: git config --global user.name 'github-actions[bot]'
+      - run: git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+      - working-directory: y
+        run: |
+          git ls-files | xargs rm -r
+          git branch -m e2db05ee9f448b75626f40d3d9002ba1a917f0a7
+          git checkout --orphan main
+          cp -r ${{ github.workspace }}/x/code/docs/debian13-setup/* .
+          git add --all
+          git commit -m 'First try'
+          git push --force --set-upstream origin main
