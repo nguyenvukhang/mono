@@ -3,7 +3,7 @@ name: stats calc tests
 on:
   push:
     paths:
-      - "code/tools/numerical-methods/**/*"
+      - "code/tools/stats-calc/**/*"
       - .github/workflows/stats-calc.yml
   workflow_dispatch:
 
