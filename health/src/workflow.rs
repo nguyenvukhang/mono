@@ -37,7 +37,7 @@ pub struct GithubWorkflow<'a> {
 
 impl<'a> From<&'a Yaml> for GithubWorkflow<'a> {
     fn from(value: &'a Yaml) -> Self {
-        let mut z = Self { name: None, jobs: None, on: &value["on"] };
+        let mut z = Self { name: value["name"].as_str(), jobs: None, on: &value["on"] };
         if let Some(yml_jobs) = value["jobs"].as_hash() {
             let mut jobs = Vec::with_capacity(yml_jobs.len());
             for (key, value) in yml_jobs {
