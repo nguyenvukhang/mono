@@ -55,6 +55,9 @@ fn main() {
         let wf = GithubWorkflow::from(&docs[0]);
         wf.assert_subproject_link(workflow_yml_path);
         wf.assert_uses_version("actions/checkout", "v6");
+        wf.assert_uses_version("actions/setup-go", "v6");
+        wf.assert_uses_version("cloudflare/wrangler-action", "v4");
+        wf.assert_uses_version("mlugg/setup-zig", "v2");
 
         // Pretty-print the workflow
         println!("=={:=<78}", workflow_yml_path.display());
@@ -66,7 +69,6 @@ fn main() {
                 Some(name) => println!("  - {} ({name})", j.yml_key),
                 None => println!("  - {}", j.yml_key),
             }
-            // for step in &j.steps { println!("    - {:?}", step) }
         }
         println!()
     }

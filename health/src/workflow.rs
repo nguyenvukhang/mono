@@ -109,10 +109,7 @@ impl GithubWorkflow<'_> {
                 let Some(uses) = step.uses else { continue };
                 let uses = uses.trim_start();
                 if uses.starts_with(name) {
-                    assert!(
-                        uses.ends_with(&ender),
-                        "Use \"{version}\" of actions/checkout."
-                    );
+                    assert!(uses.ends_with(&ender), "Use \"{version}\" of {name}.");
                 }
             }
         }
