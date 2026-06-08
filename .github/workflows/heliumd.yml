@@ -12,13 +12,30 @@ jobs:
     strategy:
       matrix:
         os:
-          - macos-latest
-          - macos-15
           - macos-14
+          - macos-15
+        arch:
+          - arm64
+          - x86_64
+        # include:
+        #   # - os: macos-12
+        #   #   arch: x86_64
+        #   #   xcode: 14.2
+        #   - os: macos-14
+        #     arch: x86_64
+        #     xcode: 15.2
       fail-fast: false
     timeout-minutes: 5
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
-      - run: make build
+        with:
+          submodules: recursive
+      - run: xcodebuild -version
+      # - name: Select XCode version
+      #   run: |
+      #     sudo ls -1 /Applications | grep "Xcode"
+      #     XCODE='/Applications/Xcode_${{ matrix.xcode }}.app/Contents/Developer'
+      #     sudo xcode-select -s $XCODE
+      - run: make ARCH=${{ matrix.arch }} build
         working-directory: code/tools/wacom-macos-precision-mode-daemon
