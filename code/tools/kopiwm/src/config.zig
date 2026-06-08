@@ -131,8 +131,8 @@ const my_keys = [_]Key{
     // will there still be a null there thanks to Zig?
     .init(MODKEY,                       k.XK_space,  .f(M.spawn,          .{ .args = launchcmd  })),
     .init(MODKEY,                       k.XK_Return, .f(M.spawn,          .{ .args = termcmd    })),
-    .init(MODKEY,                       k.XK_j,      .f(M.focusStack,     .{ .d = .Next         })),
-    .init(MODKEY,                       k.XK_k,      .f(M.focusStack,     .{ .d = .Prev         })),
+    // .init(MODKEY,                       k.XK_j,      .f(M.focusStack,     .{ .d = .Next         })),
+    // .init(MODKEY,                       k.XK_k,      .f(M.focusStack,     .{ .d = .Prev         })),
     .init(MODKEY|ControlMask|ShiftMask, k.XK_equal,  .f(M.setMFact,       .{ .f =  0.04         })),
     .init(MODKEY|ControlMask|ShiftMask, k.XK_minus,  .f(M.setMFact,       .{ .f = -0.04         })),
     .init(MODKEY,                       k.XK_Return, .f(M.zoom,           undefined              )),
