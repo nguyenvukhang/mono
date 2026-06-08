@@ -1,4 +1,4 @@
-xset r rate 200 40
+xset r rate 220 40
 
 # picom 12.5 is sufficient, which can be found in Debian 13's APT as of time
 # of writing.
