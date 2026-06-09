@@ -58,6 +58,8 @@ fn main() {
         wf.assert_uses_version("actions/setup-go", "v6");
         wf.assert_uses_version("cloudflare/wrangler-action", "v4");
         wf.assert_uses_version("mlugg/setup-zig", "v2");
+        wf.assert_uses_version("actions/upload-artifact", "v7");
+        wf.assert_uses_version("softprops/action-gh-release", "v3");
 
         // Pretty-print the workflow
         println!("=={:=<78}", workflow_yml_path.display());
