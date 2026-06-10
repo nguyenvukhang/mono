@@ -82,6 +82,7 @@ pub fn install_apt_packages() {
             "zathura",
             "pcmanfm",
             "nnn",
+            "git-crypt",
         ]);
 
     // Wrap that up and send.
