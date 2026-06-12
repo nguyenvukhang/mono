@@ -123,6 +123,7 @@ int gitnv_status(GitnvState *z) {
         if (!seen_untracked) {
             change_type = status_ptr + 1; // +1 to skip the '\t' char.
             pathspec = memchr(change_type, ':', 16);
+            pathspec++;
             pathspec += strspn(pathspec, " \r\t");
         } else {
             pathspec = status_ptr + 1; // +1 to skip the '\t' char.
@@ -140,6 +141,7 @@ int gitnv_status(GitnvState *z) {
             *++pathspec_end = '\n';
         }
         strncpy(cache_ptr, pathspec, (n = pathspec_end - pathspec + 1));
+
         *pathspec_end = '\0';
         int remaining_space = sizeof(cache_buf) - (cache_ptr - cache_buf);
         if (remaining_space < 0) {
