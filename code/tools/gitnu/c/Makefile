@@ -5,8 +5,6 @@ RED := $(shell echo "\033[31m")
 YELLOW := $(shell echo "\033[33m")
 END := $(shell echo "\033[m")
 
-BUILD_DIR := $(MAKEFILE_DIR)/target
-
 VALGRIND_LOG := $(MAKEFILE_DIR)/valgrind-log-%p.txt
 
 VALGRIND_FLAGS :=
@@ -22,53 +20,42 @@ VALGRIND_FLAGS += --log-file=$(VALGRIND_LOG)
 CMAKE_BUILD_TYPE := Release
 
 # One of: ON | OFF
-BUILD_GITNV_TESTS := OFF
+BUILD_GITNV_TESTS := ON
+
+TEST_DIR := $(MAKEFILE_DIR)/target/Test
+BUILD_DIR := $(MAKEFILE_DIR)/target/$(CMAKE_BUILD_TYPE)
 
 DEV_DIR := ~/repos
 DEV_DIR := ~/repos/alatty/kittens/ask
 
-COMMAND_FILE := $(MAKEFILE_DIR)/cmake/Commands.mk
-
-current: setup-commands
 current: test
 
-$(COMMAND_FILE): cmake/setup_commands.py
-	@python3 cmake/setup_commands.py \
-		build \
-		test \
-		> $(COMMAND_FILE)
-setup-commands: $(COMMAND_FILE)
--include $(COMMAND_FILE)
-
-# Quick hack to externally enforce that CMake re-runs the configuration upon
-# changes to CMakeLists.txt
-$(BUILD_DIR)/CMakeFiles: CMakeLists.txt
+configure_:
 	@echo "\e[33m-------- CONFIGURE CMAKE --------\e[m"
 	cmake -G Ninja -S . \
 		-DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) \
 		-DBUILD_GITNV_TESTS=$(BUILD_GITNV_TESTS) \
-		-B $(BUILD_DIR)
+		-B $(CONFIGURE_DIR)
 
-configure: $(BUILD_DIR)/CMakeFiles
-# End of the quick hack.
+configure: CONFIGURE_DIR := $(BUILD_DIR)
+configure: configure_
 
-remove-cmake-binary-dir:
-	rm -rf $(BUILD_DIR)
+configure-test: CONFIGURE_DIR := $(TEST_DIR)
+configure-test: BUILD_GITNV_TESTS := ON
+configure-test: configure_
 
-reconfigure: remove-cmake-binary-dir configure
-
-build: configure
-	cmake --build $(BUILD_DIR) --parallel 4
+# Requires that we run `configure` first.
+build:
+	cmake --build $(BUILD_DIR)
 
 install: build
 	cmake --install $(BUILD_DIR)
 
-test: CMAKE_BUILD_TYPE := Debug
-test: BUILD_GITNV_TESTS := ON
-test: test-record configure
-	cmake --build $(BUILD_DIR) --parallel 4
+# Requires that we run `configure-test` first.
+test:
+	cmake --build $(TEST_DIR) --parallel 4
 	# cd $(BUILD_DIR) && ctest # run CTest. That's one way of doing things.
-	$(BUILD_DIR)/git-nv-test
+	$(TEST_DIR)/git-nv-test
 
 v: install
 	-@rm -f $(MAKEFILE_DIR)/valgrind-log*.txt
@@ -76,3 +63,5 @@ v: install
 
 fmt:
 	git ls-files '*.c' '*.h' | xargs clang-format -i
+
+.PHONY: test

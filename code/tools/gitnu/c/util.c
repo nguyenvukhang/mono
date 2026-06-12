@@ -48,7 +48,7 @@ void parse_arg(char *arg, parsed_arg *out) {
     dots = strstr(arg, "..");
 #endif
 
-    if (dots == NULL) {
+        if (dots == NULL) {
         // Either a regular pathspec, or a single number.
         n = antoi(arg, n);
         log_trace("single n = %d", n);
