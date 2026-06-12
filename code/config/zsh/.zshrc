@@ -62,7 +62,7 @@ prepend_to_path_if_exists "/usr/local/cuda/bin"
 prepend_to_path_if_exists "/usr/local/go/bin"
 if [ ! -z $HOMEBREW_PREFIX ]; then
   prepend_to_path_if_exists "$HOMEBREW_PREFIX/opt/ruby/bin"
-  prepend_to_path_if_exists "$HOMEBREW_PREFIX/opt/swift/bin"
+  # prepend_to_path_if_exists "$HOMEBREW_PREFIX/opt/swift/bin"
   prepend_to_path_if_exists "$HOMEBREW_PREFIX/bin"
 fi
 if [ ! -z $HOME ]; then
@@ -72,7 +72,7 @@ if [ ! -z $HOME ]; then
   prepend_to_path_if_exists "$HOME/.local/jdtls/bin"
   prepend_to_path_if_exists "$HOME/.local/luals/bin"
   prepend_to_path_if_exists "$HOME/.local/share/gem/ruby/3.3.0/bin"
-  prepend_to_path_if_exists "$HOME/.local/share/swiftly/bin"
+  # prepend_to_path_if_exists "$HOME/.local/share/swiftly/bin"
   prepend_to_path_if_exists "$HOME/.local/telegram"
   prepend_to_path_if_exists "$HOME/.local/texlive/texdir/bin/x86_64-linux"
   prepend_to_path_if_exists "$HOME/.local/zig"
