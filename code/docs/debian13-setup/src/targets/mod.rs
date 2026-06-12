@@ -54,6 +54,7 @@ export_module!(
     (dwm, Dwm),
     (firefox, Firefox),
     (less, Less),
+    (libgit2, Libgit2),
     (ln, Ln),
     (micromamba, Micromamba),
     (minisign, Minisign),
