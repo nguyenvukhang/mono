@@ -1,9 +1,14 @@
 .{
     .name = .gitnu,
     .version = "0.0.1",
-    .fingerprint = 0xc1ce1081edc19248, // Changing this has security and trust implications.
+    .fingerprint = 0x23f7e7df9b1fe4c1, // Changing this has security and trust implications.
     .minimum_zig_version = "0.15.2",
-    .dependencies = .{},
+    .dependencies = .{
+        .libgit2 = .{
+            .url = "https://github.com/libgit2/libgit2/archive/refs/tags/v1.9.4.zip",
+            .hash = "N-V-__8AAKzIMAHH51Bq4ymrGYIC78StEB4KCwEVluKQ1o19",
+        },
+    },
     .paths = .{
         "build.zig",
         "build.zig.zon",
